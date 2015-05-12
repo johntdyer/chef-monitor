@@ -35,18 +35,14 @@ sensu_client node.name do
   additional client_attributes
 end
 
-%w[
-  check-procs.rb
-  check-banner.rb
-  check-http.rb
-  check-log.rb
-  check-mtime.rb
-  check-tail.rb
-  check-fs-writable.rb
-].each do |default_plugin|
-  cookbook_file "/etc/sensu/plugins/#{default_plugin}" do
-    source "plugins/#{default_plugin}"
-    mode 0755
+# Get the Chef::CookbookVersion for this cookbook
+cb = run_context.cookbook_collection[cookbook_name]
+cb.manifest['files'].each do |cbf|
+  if cbf['path'] =~ /^files\/default\/plugins\/.*/
+    cookbook_file "/etc/sensu/plugins/#{cbf['name']}" do
+      source "plugins/#{cbf['name']}"
+      mode 0755
+    end
   end
 end
 
